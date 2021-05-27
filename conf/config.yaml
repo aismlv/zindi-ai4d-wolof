@@ -1,0 +1,65 @@
+defaults:
+    - gpu: p100
+
+run_name: "step-1"
+wandb_project: "zindi-ai4d-wolof"
+
+vocab_from_checkpoint: False
+
+model: # Arguments pertaining to which model/config/tokenizer we are going to fine-tune from.
+    model_name_or_path: "jonatasgrosman/wav2vec2-large-xlsr-53-french" # Path to pretrained model or model identifier from huggingface.co/models
+    load_with_state_dict: True
+    cache_dir: null # Where do you want to store the pretrained models downloaded from huggingface.co
+    freeze_feature_extractor: True # Whether to freeze the feature extractor layers of the model.
+    gradient_checkpointing: True # If True, use gradient checkpointing to save memory at the expense of slower backward pass.
+    ctc_zero_infinity: True # "To deal with NaN loss"
+
+    attention_dropout: 0.1 # The dropout ratio for the attention probabilities.
+    activation_dropout: 0 # The dropout ratio for activations inside the fully connected layer.
+    hidden_dropout: 0 # The dropout probabilitiy for all fully connected layers in the embeddings, encoder, and pooler.
+    feat_proj_dropout: 0 # The dropout probabilitiy for all 1D convolutional layers in feature extractor.
+    layerdrop: 0 # The LayerDrop probability.
+    mask_time_prob: 0.05 # Propability of each feature vector along the time axis to be chosen as the start of the vector
+    # span to be masked. Approximately ``mask_time_prob * sequence_length // mask_time_length`` feature
+    # vectors will be masked along the time axis. This is only relevant if ``apply_spec_augment is True``.
+
+
+data:
+    path_to_data: /content/zindi-ai4d-wolof/data
+    train_dataset: 'train.dataset'
+    eval_dataset: 'valid.dataset'
+    length_field_name: duration
+    preprocessing_num_workers: 2 # The number of processes to use for the preprocessing.
+
+    max_train_samples: null # For debugging purposes or quicker training, truncate the number of training examples to this
+    max_val_samples: null # For debugging purposes or quicker training, truncate the number of validation examples to this
+
+training:
+    output_dir: "."
+    overwrite_output_dir: True
+    report_to: "none"
+    
+    num_train_epochs: 20
+    per_device_train_batch_size: ${gpu.per_device_train_batch_size}
+    per_device_eval_batch_size: ${gpu.per_device_eval_batch_size}
+    gradient_accumulation_steps: ${gpu.gradient_accumulation_steps}
+    learning_rate: 5e-4
+    warmup_ratio: 0.15 # replaces warmup_steps: 500
+
+    evaluation_strategy: "steps"
+    save_steps: 500
+    eval_steps: 250
+    logging_steps: 25
+    save_total_limit: 3
+    
+    fp16: ${gpu.fp16}
+    group_by_length: True
+    max_grad_norm: null
+    dataloader_num_workers: 4 # Number of subprocesses to use for data loading (PyTorch only). 0 (default) means that the data will be loaded in the main process.
+    do_train: True
+    do_eval: True
+    seed: 1
+
+hydra:
+  run:
+    dir: /content/output/${run_name}
