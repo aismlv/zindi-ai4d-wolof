@@ -1,0 +1,13 @@
+transformers==4.6.0
+datasets==1.6.2
+torch>=1.5.0
+torchaudio==0.8.1
+librosa==0.8.0
+tqdm==4.41.1
+PyYAML==5.4.1
+hydra-core==1.0.6
+pyspellchecker==0.6.2
+python-Levenshtein==0.12.2
+scikit_learn==0.24.2
+pandas==1.2.3
+numpy==1.20.1
